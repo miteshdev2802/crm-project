@@ -14,24 +14,6 @@ class ContactController extends Controller
      */
     public function index(Request $request)
     {
-        // $contacts = Contact::orderBy('created_at', 'desc')->paginate(10);
-        /* $query = Contact::query();
-
-        if ($request->filled('name')) {
-            $query->where('name', 'like', '%' . $request->name . '%');
-        }
-        if ($request->filled('email')) {
-            $query->where('email', 'like', '%' . $request->email . '%');
-        }
-        if ($request->filled('phone')) {
-            $query->where('phone', 'like', '%' . $request->phone . '%');
-        }
-        if ($request->filled('custom_field')) {
-            $query->whereJsonContains('custom_fields', $request->custom_field);
-        }
-
-        $contacts = $query->paginate(10);
-        return view('contacts.index', compact('contacts')); */
         $customFields = Contact::pluck('custom_fields')->flatten()->unique();
         $contacts = Contact::paginate(5);
         return view('contacts.index', compact('customFields', 'contacts'));
@@ -54,7 +36,7 @@ class ContactController extends Controller
             $query->whereJsonContains('custom_fields', $request->custom_field);
         }
 
-        $contacts = $query->orderBy('created_at', 'desc')->paginate(2);
+        $contacts = $query->orderBy('created_at', 'desc')->paginate(5);
 
         return view('contacts.list', compact('contacts'))->render();
     }
