@@ -74,9 +74,21 @@ class ContactController extends Controller
         if ($request->hasFile('additional_file')) {
             $validatedData['additional_file'] = $request->file('additional_file')->store('documents', 'public');
         }
-
-        // $validatedData['custom_fields'] = json_encode($request->custom_fields);
-
+        // dd($request->all());
+        $customData = [];
+        if (!empty($request->custom_fields)) {
+            $customFields = $request->custom_fields;
+            foreach ($customFields as $data) {
+                if (!empty($data['name'])) {
+                    $customData[$data['name']] = $data['value'];
+                }
+            }
+            //$validatedData['custom_fields'] = json_encode($customData);
+            if (!empty($customData)) {
+                $validatedData['custom_fields'] = $customData;
+            }
+        }
+        // dd($validatedData);
         $contact = Contact::create($validatedData);
 
         return redirect()->route('contacts.index')->with('success', 'Contact added successfully!');
@@ -101,7 +113,8 @@ class ContactController extends Controller
         $contact = Contact::findOrFail($id);
         /* if (!empty($contact->custom_fields)) {
             var_dump($contact->custom_fields);
-        } */
+        }
+        exit; */
         return view('contacts.edit', compact('contact'));
     }
 
@@ -135,11 +148,16 @@ class ContactController extends Controller
         $contact->email = $request->email;
         $contact->phone = $request->phone;
         $contact->gender = $request->gender;
+
+        // dd($request->custom_fields);
         if (!empty($request->custom_fields)) {
-            foreach ($request->custom_fields as $key => $value) {
-                $custom_fields[$key] = $value;
+            foreach ($request->custom_fields as $data) {
+                if (!empty($data['name'])) {
+                    $customData[$data['name']] = $data['value'];
+                }
             }
-            Contact::where('id', $id)->update(['custom_fields' => json_encode($custom_fields, true)]);
+            // Contact::where('id', $id)->update(['custom_fields' => json_encode($custom_fields, true)]);
+            $contact->custom_fields = $customData;
         }
 
         if ($request->hasFile('profile_image')) {
@@ -194,13 +212,14 @@ class ContactController extends Controller
         $otherContact = Contact::where('id', $otherId)->first();
         $mergeContact = Contact::where('id', $finalMergeId)->first();
         if (!empty($mergeContact->custom_fields)) {
-            $custom_fields = json_decode($mergeContact->custom_fields, true);
+            // $custom_fields = json_decode($mergeContact->custom_fields, true);
+            $custom_fields = $mergeContact->custom_fields;
         } else {
             $custom_fields = [];
         }
         $custom_fields['email_2'] = $otherContact->email;
         $custom_fields['phone_2'] = $otherContact->phone;
-        $udpate_data = Contact::where('id', $finalMergeId)->update(['custom_fields' => json_encode($custom_fields, true)]);
+        $udpate_data = Contact::where('id', $finalMergeId)->update(['custom_fields' => $custom_fields]);
         // dd($udpate_data);
         $contact = Contact::findOrFail($otherId);
         $contact->delete(); // Soft Delete

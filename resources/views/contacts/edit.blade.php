@@ -67,17 +67,50 @@
                 @enderror
             </div>
         </div>
-        @if(!empty($contact->custom_fields))
-        <h4>Custom Fields</h4>
+        <label>
+            <h4>Edit Custom Fields</h4>
+        </label>
         <hr />
-        @foreach($contact->custom_fields as $key=>$value)
-        <div class="form-group col-md-6">
-            <label class="inputfield">{{$key}}</label>
-            <input type="text" name="custom_fields[{{$key}}]" class="form-control" value="{{$value}}">
+        <div class="float-container" id="editCustomFieldsContainer">
+            @if(!empty($contact->custom_fields))
+            <?php $i = 0 ?>
+            @foreach($contact->custom_fields as $key=>$value)
+            <!-- <div class="form-group col-md-6 float-child">
+                <label class="inputfield">{{@ucfirst($key)}}</label>
+                <input type="text" name="custom_fields[{{$key}}]" class="form-control" value="{{$value}}">
+            </div> -->
+            <div class="input-group mb-2">
+                <input type="text" name="custom_fields[{{ $i }}][name]" value="{{ ucfirst($key) }}" class="form-control mr-2" required>
+                <input type="text" name="custom_fields[{{ $i++ }}][value]" value="{{ $value }}" class="form-control ml-2" required>
+                <button type="button" class="btn btn-danger remove-field ml-2">-</button>
+            </div>
+            @endforeach
+            @endif
         </div>
-        @endforeach
-        @endif
+        <button type="button" class="btn btn-primary" id="addEditCustomField">+ Add Custom Field</button>
         <button type="submit" class="btn btn-success">Update Contact</button>
         <a href="{{ route('contacts.index') }}"><button class="btn btn-default btn-secondary" type="button">Cancel</button></a>
     </form>
+    @endsection
+
+
+    @section('script')
+    <script type="text/javascript">
+        $(document).ready(function() {
+            let fieldIndex = `{{!empty($contact->custom_fields) ? count($contact->custom_fields) : 0}}`;
+            $('#addEditCustomField').click(function() {
+                let html = `<div class="input-group mb-2">
+                        <input type="text" name="custom_fields[${fieldIndex}][name]" class="form-control mr-2" placeholder="Field Name" required>
+                        <input type="text" name="custom_fields[${fieldIndex}][value]" class="form-control ml-2" placeholder="Field Value" required>
+                        <button type="button" class="btn btn-danger remove-field ml-2">-</button>
+                    </div>`;
+                $('#editCustomFieldsContainer').append(html);
+                fieldIndex++;
+            });
+
+            $(document).on('click', '.remove-field', function() {
+                $(this).closest('.input-group').remove();
+            });
+        });
+    </script>
     @endsection

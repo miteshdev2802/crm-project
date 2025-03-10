@@ -67,9 +67,46 @@
                 @enderror
             </div>
         </div>
+        <div class="row mt-3">
+            <div class="col-md-12">
+                <label>
+                    <h4>Add Custom Fields</h4>
+                </label>
+                <div id="customFieldsContainer">
+                    <div class="input-group mb-2">
+                        <input type="text" name="custom_fields[0][name]" class="form-control mr-2" placeholder="Field Name">
+                        <input type="text" name="custom_fields[0][value]" class="form-control ml-2" placeholder="Field Value">
+                        <button type="button" class="btn btn-success ml-2 add-field">+</button>
+                    </div>
+                </div>
+            </div>
+        </div>
         <button type="submit" class="btn btn-primary">Add Contact</button>
         <a href="{{ route('contacts.index') }}"><button class="btn btn-default btn-secondary" type="button">Cancel</button></a>
     </form>
 </div>
 
+@endsection
+
+@section('script')
+<script type="text/javascript">
+    $('document').ready(function() {
+        let fieldIndex = 1;
+        $(document).on('click', '.add-field', function() {
+            let newField = `
+            <div class="input-group mb-2">
+                <input type="text" name="custom_fields[${fieldIndex}][name]" class="form-control mr-2" placeholder="Field Name">
+                <input type="text" name="custom_fields[${fieldIndex}][value]" class="form-control ml-2" placeholder="Field Value">
+                <button type="button" class="btn btn-danger ml-2 remove-field">-</button>
+            </div>
+        `;
+            $('#customFieldsContainer').append(newField);
+            fieldIndex++;
+        });
+
+        $(document).on('click', '.remove-field', function() {
+            $(this).closest('.input-group').remove();
+        });
+    });
+</script>
 @endsection
